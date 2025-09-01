@@ -36,8 +36,45 @@ BillingAddress → endereço de cobrança da conta.
 
 A API integra-se à BRApiClient para obter o preço atual das ações e calcular o valor total da carteira.
 
+🔹 Fluxo da API
+
+Usuário (User)
+
+Cria uma conta (Account) via /v1/users/{userId}/accounts.
+
+Pode atualizar ou deletar seus dados via endpoints /v1/users.
+
+Conta (Account)
+
+Cada conta pode ter várias ações associadas (AccountStock).
+
+O usuário pode listar as ações e seus valores totais via /v1/accounts/{accountId}/stocks.
+
+Ações (Stock)
+
+Ações são criadas no sistema via /v1/stocks.
+
+Cada ação possui stockId e description.
+
+Transações (Transaction)
+
+Usuário realiza transações de compra ou venda de ações via /accounts/{accountId}/transactions.
+
+Cada transação atualiza a quantidade de ações na conta e o saldo da conta.
+
+Integração com BRApiClient
+
+Para cada ação associada a uma conta, a API consulta a BRApi para obter o preço atual.
+
+O valor total da ação é calculado como:
+
+totalValue = currentPrice * quantity
+
+
+Esses valores são retornados nos endpoints de listagem de ações da conta.
+
 🔹 Endpoints Principais
-1️⃣ Usuários (/v1/users)
+Usuários (/v1/users)
 Método	Endpoint	Descrição
 POST	/v1/users	Cria um novo usuário
 GET	/v1/users	Lista todos os usuários
@@ -46,8 +83,19 @@ PUT	/v1/users/{userId}	Atualiza dados do usuário
 DELETE	/v1/users/{userId}	Remove um usuário
 POST	/v1/users/{userId}/accounts	Cria uma conta associada ao usuário
 GET	/v1/users/{userId}/accounts	Lista todas as contas de um usuário
+Contas (/v1/accounts)
+Método	Endpoint	Descrição
+POST	/v1/accounts/{accountId}/stocks	Associa ações a uma conta
+GET	/v1/accounts/{accountId}/stocks	Lista ações de uma conta com preço atual e valor total
+Ações (/v1/stocks)
+Método	Endpoint	Descrição
+POST	/v1/stocks	Cria uma nova ação no sistema
+Transações (/accounts/{accountId}/transactions)
+Método	Endpoint	Descrição
+POST	/accounts/{accountId}/transactions	Registra uma transação de compra ou venda de ações
+🔹 Exemplos de Request / Response
 
-Exemplo de Request para criar usuário:
+Criar Usuário (POST /v1/users)
 
 {
   "name": "Brenno",
@@ -55,12 +103,8 @@ Exemplo de Request para criar usuário:
   "password": "123456"
 }
 
-2️⃣ Contas (/v1/accounts)
-Método	Endpoint	Descrição
-POST	/v1/accounts/{accountId}/stocks	Associa ações a uma conta
-GET	/v1/accounts/{accountId}/stocks	Lista ações de uma conta com preço atual e valor total
 
-Exemplo de Request para associar ações:
+Associar ação a conta (POST /v1/accounts/{accountId}/stocks)
 
 {
   "stockId": "AAPL",
@@ -68,7 +112,17 @@ Exemplo de Request para associar ações:
 }
 
 
-Exemplo de Response:
+Registrar transação (POST /accounts/{accountId}/transactions)
+
+{
+  "stockId": "AAPL",
+  "tipo": "BUY",
+  "quantidade": 10,
+  "preco": 150.5
+}
+
+
+Response exemplo para listagem de ações da conta (GET /v1/accounts/{accountId}/stocks)
 
 [
   {
@@ -79,58 +133,16 @@ Exemplo de Response:
   }
 ]
 
-3️⃣ Ações (/v1/stocks)
-Método	Endpoint	Descrição
-POST	/v1/stocks	Cria uma nova ação no sistema
-
-Exemplo de Request:
-
-{
-  "stockId": "AAPL",
-  "description": "Apple Inc."
-}
-
-4️⃣ Transações (/accounts/{accountId}/transactions)
-Método	Endpoint	Descrição
-POST	/accounts/{accountId}/transactions	Registra uma transação de compra ou venda de ações
-
-Exemplo de Request:
-
-{
-  "stockId": "AAPL",
-  "tipo": "BUY",
-  "quantidade": 10,
-  "preco": 150.5
-}
-
-
-Exemplo de Response:
-
-{
-  "transactionId": "uuid-transacao",
-  "accountId": "uuid-conta",
-  "stockId": "AAPL",
-  "tipo": "BUY",
-  "quantidade": 10,
-  "preco": 150.5,
-  "result": "SUCCESS",
-  "balanceAfter": 5000
-}
-
-
-
-O serviço calcula o valor total da carteira multiplicando o preço atual pelo número de ações em cada conta.
-
 🔹 Documentação Swagger
 
-Após rodar a aplicação, você pode acessar a interface do Swagger UI:
+Após rodar a aplicação, acesse:
 
 http://localhost:8080/swagger-ui.html
 
 
 Todos os endpoints, DTOs e enums estão documentados.
 
-Permite testar os endpoints diretamente no navegador.
+Permite testar a API diretamente no navegador.
 
 🔹 Como Rodar a API
 
@@ -146,4 +158,4 @@ Rode a aplicação:
 mvn spring-boot:run
 
 
-Acesse o Swagger UI para testar os endpoints.
+Teste os endpoints via Swagger UI ou qualquer cliente HTTP (Postman, Insomnia, etc.).
