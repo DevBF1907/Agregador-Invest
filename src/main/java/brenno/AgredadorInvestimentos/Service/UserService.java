@@ -14,6 +14,7 @@ import brenno.AgredadorInvestimentos.Repository.BillingAddressRepository;
 import brenno.AgredadorInvestimentos.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,18 +32,24 @@ public class UserService  {
 
     private BillingAddressRepository billingAddressRepository;
 
+    private PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, AccountRepository accountRepository, BillingAddressRepository billingAddressRepository) {
+
+    public UserService(UserRepository userRepository, AccountRepository accountRepository, BillingAddressRepository billingAddressRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
         this.billingAddressRepository = billingAddressRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     public UUID CreateUser(UserDto userDto) {
+        // Criptografar a senha antes de salvar
+        String encryptedPassword = passwordEncoder.encode(userDto.password());
+        
         // DTO -> ENTITY
         User entity = new User(
                 userDto.username(),
                 userDto.email(),
-                userDto.password()
+                encryptedPassword
         );
 
         User userSaved = userRepository.save(entity);
@@ -52,6 +59,10 @@ public class UserService  {
 
     public Optional<User> getUserById(UUID userId){
         return  userRepository.findById(UUID.fromString(userId.toString()));
+    }
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public List<User> listUsers(){
@@ -77,11 +88,14 @@ public class UserService  {
         if(userEntity.isPresent()){
             var user = userEntity.get();
 
-            if (updateUserDto.username() != null ){user.setUsername(updateUserDto.username());
-           }
-           if (updateUserDto.password() != null ){
-               user.setPassword(updateUserDto.password());
-           }
+            if (updateUserDto.username() != null ){
+                user.setUsername(updateUserDto.username());
+            }
+            if (updateUserDto.password() != null ){
+                // Criptografar a nova senha
+                String encryptedPassword = passwordEncoder.encode(updateUserDto.password());
+                user.setPassword(encryptedPassword);
+            }
             userRepository.save(user);
         }
     }
