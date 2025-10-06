@@ -22,6 +22,6 @@ public class SwaggerConfig {
                                 .url("http://springdoc.org")))
                 .externalDocs(new ExternalDocumentation()
                         .description("Repositório no GitHub")
-                        .url("https://github.com/seu-usuario/seu-repo"));
+                        .url("https://github.com/DevBF1907/Agregador-Invest"));
     }
 }

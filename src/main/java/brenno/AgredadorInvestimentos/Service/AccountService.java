@@ -64,12 +64,13 @@ public class AccountService {
             .stream()
                 .map( as -> new AccountStockResponseDto(
                         as.getStock().getStockId(),
-                        as.getQuantity(),getTotal(as.getQuantity()
+                        as.getQuantidade(),
+                        getTotal(as.getQuantidade()
                         ,as.getStock().getStockId())))
         .toList();
     }
 
-    private double getTotal(Integer quantity, String stockId) {
+    private double getTotal(double quantity, String stockId) {
         var response = brapiClient.getQuote(TOKEN, stockId);
 
         if (response.results() == null || response.results().isEmpty()) {

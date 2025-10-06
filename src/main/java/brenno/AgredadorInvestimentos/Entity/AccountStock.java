@@ -20,17 +20,34 @@ public class AccountStock {
     private Stock stock;
 
     @Column(name = "quantity")
-    private Integer quantity;
+    private Double quantidade;
+
+    @Column(name = "average_price")
+    private Double precoMedio;
+
 
     public AccountStock() {
     }
 
-    public AccountStock(AccountStockId id, Account account, Stock stock, Integer quantity) {
+    public AccountStock(AccountStockId id, Account account, Stock stock, Integer quantity) {}
+
+    // Construtor usado no TransactionService
+    public AccountStock(Account account, Stock stock, Double quantidade, Double precoMedio) {
+        this.id = new AccountStockId(account.getAccountId(), stock.getStockId());
+        this.account = account;
+        this.stock = stock;
+        this.quantidade = quantidade;
+        this.precoMedio = precoMedio;
+    }
+
+    public AccountStock(AccountStockId id, Account account, Stock stock, Double quantidade, Double precoMedio) {
         this.id = id;
         this.account = account;
         this.stock = stock;
-        this.quantity = quantity;
+        this.quantidade = quantidade;
+        this.precoMedio = precoMedio;
     }
+
 
     public AccountStockId getId() {
         return id;
@@ -56,12 +73,19 @@ public class AccountStock {
         this.stock = stock;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public Double getQuantidade() {
+        return quantidade;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setQuantidade(Double quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    public Double getPrecoMedio() {
+        return precoMedio;
+    }
+
+    public void setPrecoMedio(Double precoMedio) {
+        this.precoMedio = precoMedio;
     }
 }
-
